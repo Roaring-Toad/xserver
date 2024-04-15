@@ -1,6 +1,6 @@
 ARG BALENA_ARCH=%%BALENA_ARCH%%
 
-FROM balenalib/$BALENA_ARCH-debian:bullseye
+FROM balenalib/$BALENA_ARCH-debian:bullseye as builder
 
 RUN install_packages \
     matchbox-window-manager \
@@ -15,14 +15,63 @@ RUN install_packages \
     xserver-xorg-legacy \
     xserver-xorg-video-all
 
+RUN install_packages git python3 python3-pip rsync binutils busybox-static
+RUN pip install git+https://github.com/Roaring-Toad/dockerize
+RUN dockerize -n --verbose -o /output \
+    -a /etc/X11/ /etc/X11 \
+    -a /etc/alternatives/x* /etc/alternatives \
+    -a /etc/matchbox/ /etc/matchbox \
+    -a /etc/fonts/ /etc/fonts \
+    -a /usr/share/fonts/ /usr/share/fonts \
+	-a /usr/share/pkgconfig/ /usr/share/pkgconfig \
+    -a /usr/share/X11/ /usr/share/X11 \
+    -a /usr/lib/xorg/ /usr/lib/xorg \
+    -a /usr/share/matchbox/ /usr/share/matchbox \
+    -a /usr/share/themes/Default/matchbox/ /usr/share/themes/Default/matchbox \
+    --filetools \
+    `which startx` \
+    `which busybox` \
+    `which balena-idle` \
+    `which awk` \
+    `which cut` \
+    `which head` \
+    `which mktemp` \
+    `which sh` \
+    `which dash` \
+    `which bash` \
+    `which env` \
+    `which tty` \
+    `which expr` \
+    `which hostname` \
+    /usr/bin/X* \
+    /usr/bin/x* \
+    /usr/bin/matchbox* \
+    /usr/bin/mcookie \
+	/usr/bin/setxkbmap \
+    /usr/lib/xorg/modules/* \
+	/usr/lib/aarch64-linux-gnu/libx*.so* \
+    /usr/lib/aarch64-linux-gnu/libX*.so*
+
+# Uncomment this to pause the build container.
+# Then use `touch stop` to cause it to continue without failing.
+#
+# RUN while [ ! -f stop ]; do sleep 0.6; done
+
+
+FROM scratch
+COPY --from=builder /output/ ./
+RUN mkdir -p /tmp
+RUN mkdir -p /var/log
+RUN mkdir -p /var/run
 WORKDIR /opt/xserver
-
 COPY src/xinitrc /root/.xinitrc
-
 COPY src/entry.sh src/config.sh VERSION /opt/xserver/
-
-ENTRYPOINT  ["/bin/bash", "/opt/xserver/entry.sh"]
-
+ENTRYPOINT  ["/bin/busybox", "sh", "-c", "/opt/xserver/entry.sh"]
 ENV CURSOR=true \
     UDEV=on \
     FORCE_DISPLAY=:0
+
+# Uncomment this to pause the build container.
+# Then use `touch stop` to cause it to continue without failing.
+#
+# RUN ["/bin/busybox", "sh", "-c", "while [ ! -f stop ]; do sleep 1; done"]
