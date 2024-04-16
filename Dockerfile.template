@@ -27,12 +27,27 @@ RUN dockerize -n --verbose -o /output \
     -a /usr/share/X11/ /usr/share/X11 \
     -a /usr/lib/xorg/ /usr/lib/xorg \
     -a /usr/share/matchbox/ /usr/share/matchbox \
+    -a /usr/bin/entry.sh /usr/bin \
+    -a /usr/share/bug/ /usr/share/bug \
+    -a /usr/share/libinput/ /usr/share/libinput \
+    -a /usr/lib/udev/ /usr/lib/udev \
+    -a /lib/udev/ /lib/udev \
+    -a /etc/udev/ /etc/udev \
+    -a /run/udev/ /run/udev \
     -a /usr/share/themes/Default/matchbox/ /usr/share/themes/Default/matchbox \
     --filetools \
     `which startx` \
+    `which mount` \
+    `which touch` \
+    `which umount` \
+    `which mountpoint` \
+    `which unshare` \
+    `which udevadm` \
     `which busybox` \
     `which balena-idle` \
     `which awk` \
+    `which echo` \
+    `which ln` \
     `which cut` \
     `which head` \
     `which mktemp` \
@@ -43,6 +58,7 @@ RUN dockerize -n --verbose -o /output \
     `which tty` \
     `which expr` \
     `which hostname` \
+    /lib/systemd/systemd-udevd \
     /usr/bin/X* \
     /usr/bin/x* \
     /usr/bin/matchbox* \
@@ -50,12 +66,13 @@ RUN dockerize -n --verbose -o /output \
 	/usr/bin/setxkbmap \
     /usr/lib/xorg/modules/* \
 	/usr/lib/aarch64-linux-gnu/libx*.so* \
+    /usr/lib/aarch64-linux-gnu/libinput.so* \
     /usr/lib/aarch64-linux-gnu/libX*.so*
 
 # Uncomment this to pause the build container.
 # Then use `touch stop` to cause it to continue without failing.
 #
-# RUN while [ ! -f stop ]; do sleep 0.6; done
+RUN while [ ! -f stop ]; do sleep 0.7; done
 
 
 FROM scratch

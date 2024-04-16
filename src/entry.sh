@@ -30,6 +30,9 @@ then
 	fi
 fi
 
+echo "PAUSING... "
+cat
+
 if [ "$CURSOR" = true ];
 then
     exec startx -- $FORCE_DISPLAY
