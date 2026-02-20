@@ -1,6 +1,6 @@
 ARG BALENA_ARCH=%%BALENA_ARCH%%
 
-FROM balenalib/$BALENA_ARCH-debian:bullseye
+FROM balenalib/$BALENA_ARCH-debian:bullseye-20240401
 
 RUN install_packages \
     matchbox-window-manager \
